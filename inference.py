@@ -130,16 +130,22 @@ def run_task(client, task_id):
             if done:
                 break
 
-        # ───────────────── FIX HERE ─────────────────
-        raw_score = sum(rewards) / max(len(rewards), 1)
+        # ───────────────── SCORE FIX ─────────────────
+        # Handle empty rewards edge case, then clamp strictly within (0, 1)
+        # using 0.01 / 0.99 margins to satisfy validator's floating point checks
+        if rewards:
+            raw_score = sum(rewards) / len(rewards)
+        else:
+            raw_score = 0.1  # fallback: no steps taken → neutral low score
 
-        # STRICT OpenEnv requirement: 0 < score < 1
-        score = max(1e-6, min(raw_score, 1 - 1e-6))
+        # STRICT OpenEnv requirement: score must be strictly between 0 and 1
+        score = max(0.01, min(raw_score, 0.99))
 
         success = score >= SUCCESS_THRESHOLD
 
     except Exception as e:
         print(f"[TASK ERROR] {e}")
+        score = 0.01  # ensure score is valid even on total failure
 
     finally:
         log_end(success, steps, score, rewards)
