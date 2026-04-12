@@ -1,0 +1,46 @@
+name: womens-safety-response
+version: "1.0.0"
+description: >
+  An OpenEnv environment simulating a women's safety emergency response platform.
+  AI agents must triage distress signals, moderate harassment reports, and route
+  safety incidents to the correct authorities — tasks that directly impact lives.
+author: "Women Safety OpenEnv Team"
+tags:
+  - openenv
+  - safety
+  - emergency-response
+  - content-moderation
+  - real-world
+  - social-good
+tasks:
+  - id: triage-sos
+    name: "SOS Alert Triage"
+    difficulty: easy
+    description: >
+      Classify incoming SOS/distress messages by severity (critical/high/medium/low)
+      and identify the type of threat (physical, stalking, harassment, domestic).
+      Correct triage ensures the right resources are dispatched in time.
+
+  - id: harassment-moderation
+    name: "Harassment Report Moderation"
+    difficulty: medium
+    description: >
+      Review a set of user-submitted harassment reports from a safety app.
+      For each report decide: escalate to police, refer to counselor, mark resolved,
+      or request more information. Partial credit for partially correct queues.
+
+  - id: incident-routing
+    name: "Multi-Agency Incident Routing"
+    difficulty: hard
+    description: >
+      Given a complex real-time incident feed with conflicting signals, resource
+      constraints, and overlapping jurisdictions, route each incident to the optimal
+      agency (police, NGO shelter, medical, legal aid) while minimizing response time
+      and maximizing coverage. Requires multi-step reasoning under pressure.
+
+api:
+  base_path: "/"
+  reset_endpoint: "/reset"
+  step_endpoint: "/step"
+  state_endpoint: "/state"
+  health_endpoint: "/health"
