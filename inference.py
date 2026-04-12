@@ -1,11 +1,11 @@
 """
-inference.py — Women's Safety OpenEnv (CLEAN VERSION)
+inference.py — Women's Safety OpenEnv (CLEAN + VALIDATED)
 """
 
 import json
 import os
 import sys
-from typing import Any, Dict, List
+from typing import List
 
 import requests
 from openai import OpenAI
@@ -16,7 +16,6 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME   = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 API_KEY      = os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY", "")
 
-# KEEP LOCAL BY DEFAULT (safe for judging / running locally)
 ENV_URL = os.getenv("ENV_BASE_URL", "http://localhost:7860").rstrip("/")
 
 MAX_STEPS_PER_TASK = 12
@@ -40,7 +39,7 @@ def log_end(success, steps, score, rewards):
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
         f"[END] success={str(success).lower()} steps={steps} "
-        f"score={score:.3f} rewards={rewards_str}",
+        f"score={score:.6f} rewards={rewards_str}",
         flush=True
     )
 
@@ -131,8 +130,12 @@ def run_task(client, task_id):
             if done:
                 break
 
-        score = sum(rewards) / max(len(rewards), 1)
-        score = min(max(score, 0.0), 1.0)
+        # ───────────────── FIX HERE ─────────────────
+        raw_score = sum(rewards) / max(len(rewards), 1)
+
+        # STRICT OpenEnv requirement: 0 < score < 1
+        score = max(1e-6, min(raw_score, 1 - 1e-6))
+
         success = score >= SUCCESS_THRESHOLD
 
     except Exception as e:
@@ -161,9 +164,10 @@ def main():
 
     print("\nFINAL SCORES:")
     for k, v in scores.items():
-        print(k, round(v, 3))
+        print(k, round(v, 6))
 
-    print("AVG:", round(sum(scores.values()) / 3, 3))
+    print("AVG:", round(sum(scores.values()) / 3, 6))
+
 
 if __name__ == "__main__":
     main()
